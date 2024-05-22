@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Undian</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="shortcut icon" href="favicons/favicon.ico" />
+    <style>
+        body,
+        html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            background-color: cornflowerblue;
+            font-family: Arial, sans-serif;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            position: relative;
+        }
+
+        #buttons {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        #logo {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+        }
+
+        #nameRectangle {
+            width: 800px;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 10px solid #f2b32c;
+            padding: 10px;
+            background-color: #ffffff;
+            font-size: 3rem;
+            font-weight: bold;
+            margin-top: 60px;
+            position: relative;
+            box-sizing: border-box;
+            border-radius: 25px;
+        }
+
+        #spinButton {
+            position: absolute;
+            bottom: 25%;
+            left: 46%;
+            width: 150px;
+            font-weight: bold;
+            box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0.75);
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: cornflowerblue;
+            color: white;
+        }
+
+        .btn-warning {
+            margin-top: 20px;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <div id="buttons">
+            <i class="fas fa-expand p-3" id="fullscreenButton"
+                style="color:white; font-size: 1.5rem; cursor: pointer;"></i>
+            <i class="fas fa-cog p-3" id="settingsButton" style="color:white; font-size: 1.5rem; cursor: pointer;"></i>
+            <i class="fas fa-trophy p-3" id="trophyButton" style="color:white; font-size: 1.5rem; cursor: pointer;"></i>
+        </div>
+        <div id="logo">
+            <img src="logo.png" alt="Logo" class="img-fluid">
+        </div>
+        <div id="container">
+            <div class="row">
+                <div class="col-md-12 header-content" style="margin-top: -90px;">
+                    <img src="kambing-left.png" alt="Kambing" class="img-fluid">
+                    <span style="color: white; font-size: 3rem;font-weight: bold">Undian Kurban</span>
+                    <img src="kambing.png" alt="Kambing" class="img-fluid">
+                </div>
+            </div>
+            <div id="nameRectangle">Name</div>
+            <button type="button" class="btn btn-warning" id="spinButton">Mulai</button>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; IT BPR Nusamba Adiwerna</p>
+    </footer>
+
+    <!-- Settings Modal -->
+    <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="settingsModalLabel">Settings</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="settingsForm">
+                        <div class="form-group">
+                            <label for="nameInput">Add Name</label>
+                            <textarea class="form-control" id="nameInput" placeholder="Enter name"></textarea>
+                        </div>
+                        <button type="button" class="btn btn-primary" id="addNameButton">Add Name</button>
+                        <span style="margin-left: 100px" id="totalNama" class="badge badge-success p-2">Total Nama :
+                            0</span>
+                        <div class="form-group mt-3">
+                            <label for="durationSelect">Duration</label>
+                            <select class="form-control" id="durationSelect" onchange="setDuration()">
+                                <option value="10000">10s</option>
+                                <option value="15000" selected>15s</option>
+                                <option value="20000">20s</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" id="saveSettingsButton">Save Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Winners Modal -->
+    <div class="modal fade" id="winnersModal" tabindex="-1" aria-labelledby="winnersModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="winnersModalLabel">Winners</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                            </tr>
+                        </thead>
+                        <tbody id="winnersTableBody">
+                            <!-- Winners will be appended here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- win Modal -->
+    <div class="modal fade mt-5" id="winModal" tabindex="-1" aria-labelledby="winModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="winModalLabel">Pemenang</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center m-auto">
+                    <span id="pemenang" style="font-size: 3rem;font-weight:bold; "></span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                        id="closeBtnWin">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <script>
+        const names = [];
+        const winners = [];
+        let duration = 15000;
+        const nameRectangle = document.getElementById("nameRectangle");
+        const spinButton = document.getElementById("spinButton");
+        const closeBtnWin = document.getElementById("closeBtnWin");
+        const fullscreenButton = document.getElementById("fullscreenButton");
+        const settingsButton = document.getElementById("settingsButton");
+        const trophyButton = document.getElementById("trophyButton");
+        const nameInput = document.getElementById("nameInput");
+        const addNameButton = document.getElementById("addNameButton");
+        const winnersTableBody = document.getElementById("winnersTableBody");
+        const pemenang = document.getElementById("pemenang");
+        const totalNama = document.getElementById("totalNama");
+
+
+        function spinNames(duration, interval) {
+            let elapsed = 0;
+            const intervalId = setInterval(() => {
+                const randomIndex = Math.floor(Math.random() * names.length);
+                nameRectangle.textContent = names[randomIndex];
+                elapsed += interval;
+                if (elapsed >= duration) {
+                    clearInterval(intervalId);
+                    const winner = names[randomIndex];
+                    winners.push(winner);
+                    updateWinnersTable();
+                    pemenang.textContent = winner;
+                    $('#winModal').modal('show');
+
+                    const audio = new Audio(); // Create an audio element
+
+                    // Construct the audio source URL based on your setup
+                    const soundPath = `winner.mp3`; // Replace with your actual sound file path
+
+                    // Handle potential errors (optional)
+                    audio.onerror = function() {
+                        console.error('Error playing sound:', soundPath);
+                    };
+
+                    audio.src = soundPath; // Set the audio source
+                    audio.play(); // Play the audio
+
+                    // 
+                    spinButton.disabled = false;
+                    confetti();
+                }
+            }, interval);
+        }
+
+        function updateWinnersTable() {
+            winnersTableBody.innerHTML = '';
+            winners.forEach((winner, index) => {
+                const row = document.createElement('tr');
+                const cellIndex = document.createElement('td');
+                const cellName = document.createElement('td');
+                cellIndex.textContent = index + 1;
+                cellName.textContent = winner;
+                row.appendChild(cellIndex);
+                row.appendChild(cellName);
+                winnersTableBody.appendChild(row);
+            });
+        }
+
+        spinButton.addEventListener("click", () => {
+            if (names.length <= 0) {
+                alert('Insert name first!');
+                $('#settingsModal').modal('show');
+            } else {
+                // Play sound from Laravel public folder
+                const audio = new Audio(); // Create an audio element
+                let soundPath = ''; // Replace with your actual sound file path
+
+                if (duration == 10000) {
+                    soundPath = `spin-10s.mp3`; // Replace with your actual sound file path
+                }
+                if (duration == 15000) {
+                    soundPath = `spin-15s.mp3`; // Replace with your actual sound file path
+                }
+                if (duration == 20000) {
+                    soundPath = `spin-20s.mp3`; // Replace with your actual sound file path
+                }
+
+                // Handle potential errors (optional)
+                audio.onerror = function() {
+                    console.error('Error playing sound:', soundPath);
+                };
+
+                audio.src = soundPath; // Set the audio source
+                audio.play();
+                setTimeout(function() {
+                    spinNames(duration, 100);
+                    spinButton.disabled = true;
+                }, 200); // Play the audio
+            }
+        });
+
+        fullscreenButton.addEventListener("click", () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        });
+
+        settingsButton.addEventListener("click", () => {
+            $('#settingsModal').modal('show');
+        });
+        trophyButton.addEventListener("click", () => {
+            $('#winnersModal').modal('show');
+        });
+
+        addNameButton.addEventListener("click", () => {
+            const namesInput = nameInput.value.trim();
+            if (namesInput) {
+                const newNames = namesInput.split('\n').map(name => name.trim()).filter(Boolean);
+                names.push(...newNames);
+                totalNama.textContent = "Total Nama : " + names.length;
+            }
+        });
+
+        function setDuration() {
+            var durationSelect = document.getElementById('durationSelect');
+            var selectedValue = durationSelect.value;
+            duration = parseInt(selectedValue);
+        }
+        document.getElementById("saveSettingsButton").addEventListener("click", () => {
+            $('#settingsModal').modal('hide');
+        });
+
+        var timer = undefined;
+        var frame = undefined;
+
+        function confetti() {
+
+            // Globals
+            var random = Math.random,
+                cos = Math.cos,
+                sin = Math.sin,
+                PI = Math.PI,
+                PI2 = PI * 2,
+
+                confetti = [];
+
+            var particles = 10,
+                spread = 40,
+                sizeMin = 3,
+                sizeMax = 12 - sizeMin,
+                eccentricity = 10,
+                deviation = 100,
+                dxThetaMin = -.1,
+                dxThetaMax = -dxThetaMin - dxThetaMin,
+                dyMin = .13,
+                dyMax = .18,
+                dThetaMin = .4,
+                dThetaMax = .7 - dThetaMin;
+
+            var colorThemes = [
+                function() {
+                    return color(200 * random() | 0, 200 * random() | 0, 200 * random() | 0);
+                },
+                function() {
+                    var black = 200 * random() | 0;
+                    return color(200, black, black);
+                },
+                function() {
+                    var black = 200 * random() | 0;
+                    return color(black, 200, black);
+                },
+                function() {
+                    var black = 200 * random() | 0;
+                    return color(black, black, 200);
+                },
+                function() {
+                    return color(200, 100, 200 * random() | 0);
+                },
+                function() {
+                    return color(200 * random() | 0, 200, 200);
+                },
+                function() {
+                    var black = 256 * random() | 0;
+                    return color(black, black, black);
+                },
+                function() {
+                    return colorThemes[random() < .5 ? 1 : 2]();
+                },
+                function() {
+                    return colorThemes[random() < .5 ? 3 : 5]();
+                },
+                function() {
+                    return colorThemes[random() < .5 ? 2 : 4]();
+                }
+            ];
+
+            function color(r, g, b) {
+                return 'rgb(' + r + ',' + g + ',' + b + ')';
+            }
+
+            // Cosine interpolation
+            function interpolation(a, b, t) {
+                return (1 - cos(PI * t)) / 2 * (b - a) + a;
+            }
+
+            // Create a 1D Maximal Poisson Disc over [0, 1]
+            var radius = 1 / eccentricity,
+                radius2 = radius + radius;
+
+            function createPoisson() {
+                // domain is the set of points which are still available to pick from
+                // D = union{ [d_i, d_i+1] | i is even }
+                var domain = [radius, 1 - radius],
+                    measure = 1 - radius2,
+                    spline = [0, 1];
+                while (measure) {
+                    var dart = measure * random(),
+                        i, l, interval, a, b, c, d;
+
+                    // Find where dart lies
+                    for (i = 0, l = domain.length, measure = 0; i < l; i += 2) {
+                        a = domain[i], b = domain[i + 1], interval = b - a;
+                        if (dart < measure + interval) {
+                            spline.push(dart += a - measure);
+                            break;
+                        }
+                        measure += interval;
+                    }
+                    c = dart - radius, d = dart + radius;
+
+                    // Update the domain
+                    for (i = domain.length - 1; i > 0; i -= 2) {
+                        l = i - 1, a = domain[l], b = domain[i];
+                        // c---d          c---d  Do nothing
+                        //   c-----d  c-----d    Move interior
+                        //   c--------------d    Delete interval
+                        //         c--d          Split interval
+                        //       a------b
+                        if (a >= c && a < d)
+                            if (b > d) domain[l] = d; // Move interior (Left case)
+                            else domain.splice(l, 2); // Delete interval
+                        else if (a < c && b > c)
+                            if (b <= d) domain[i] = c; // Move interior (Right case)
+                            else domain.splice(i, 0, c, d); // Split interval
+                    }
+
+                    // Re-measure the domain
+                    for (i = 0, l = domain.length, measure = 0; i < l; i += 2)
+                        measure += domain[i + 1] - domain[i];
+                }
+
+                return spline.sort();
+            }
+
+            // Create the overarching container
+            var container = document.createElement('div');
+            container.classList.add('confetto-container')
+            container.style.position = 'fixed';
+            container.style.top = '0';
+            container.style.left = '0';
+            container.style.width = '100%';
+            container.style.height = '0';
+            container.style.overflow = 'visible';
+            container.style.zIndex = '9999';
+
+            // Confetto constructor
+            function Confetto(theme) {
+                this.frame = 0;
+                this.outer = document.createElement('div');
+                this.inner = document.createElement('div');
+                this.outer.appendChild(this.inner);
+
+                var outerStyle = this.outer.style,
+                    innerStyle = this.inner.style;
+                outerStyle.position = 'absolute';
+                outerStyle.width = (sizeMin + sizeMax * random()) + 'px';
+                outerStyle.height = (sizeMin + sizeMax * random()) + 'px';
+                innerStyle.width = '100%';
+                innerStyle.height = '100%';
+                innerStyle.backgroundColor = theme();
+
+                outerStyle.perspective = '50px';
+                outerStyle.transform = 'rotate(' + (360 * random()) + 'deg)';
+                this.axis = 'rotate3D(' +
+                    cos(360 * random()) + ',' +
+                    cos(360 * random()) + ',0,';
+                this.theta = 360 * random();
+                this.dTheta = dThetaMin + dThetaMax * random();
+                innerStyle.transform = this.axis + this.theta + 'deg)';
+
+                this.x = window.innerWidth * random();
+                this.y = -deviation;
+                this.dx = sin(dxThetaMin + dxThetaMax * random());
+                this.dy = dyMin + dyMax * random();
+                outerStyle.left = this.x + 'px';
+                outerStyle.top = this.y + 'px';
+
+                // Create the periodic spline
+                this.splineX = createPoisson();
+                this.splineY = [];
+                for (var i = 1, l = this.splineX.length - 1; i < l; ++i)
+                    this.splineY[i] = deviation * random();
+                this.splineY[0] = this.splineY[l] = deviation * random();
+
+                this.update = function(height, delta) {
+                    this.frame += delta;
+                    this.x += this.dx * delta;
+                    this.y += this.dy * delta;
+                    this.theta += this.dTheta * delta;
+
+                    // Compute spline and convert to polar
+                    var phi = this.frame % 7777 / 7777,
+                        i = 0,
+                        j = 1;
+                    while (phi >= this.splineX[j]) i = j++;
+                    var rho = interpolation(
+                        this.splineY[i],
+                        this.splineY[j],
+                        (phi - this.splineX[i]) / (this.splineX[j] - this.splineX[i])
+                    );
+                    phi *= PI2;
+
+                    outerStyle.left = this.x + rho * cos(phi) + 'px';
+                    outerStyle.top = this.y + rho * sin(phi) + 'px';
+                    innerStyle.transform = this.axis + this.theta + 'deg)';
+                    return this.y > height + deviation;
+                };
+            }
+
+            function poof() {
+                if (!frame) {
+                    // Append the container
+                    document.body.appendChild(container);
+
+                    // Add confetti
+                    var theme = colorThemes[0],
+                        count = 0;
+                    (function addConfetto() {
+                        var confetto = new Confetto(theme);
+                        confetti.push(confetto);
+                        container.appendChild(confetto.outer);
+                        timer = setTimeout(addConfetto, spread * random());
+                    })(0);
+
+                    // Start the loop
+                    var prev = undefined;
+                    requestAnimationFrame(function loop(timestamp) {
+                        var delta = prev ? timestamp - prev : 0;
+                        prev = timestamp;
+                        var height = window.innerHeight;
+
+                        for (var i = confetti.length - 1; i >= 0; --i) {
+                            if (confetti[i].update(height, delta)) {
+                                container.removeChild(confetti[i].outer);
+                                confetti.splice(i, 1);
+                            }
+                        }
+
+                        if (timer || confetti.length)
+                            return frame = requestAnimationFrame(loop);
+
+                        // Cleanup
+                        document.body.removeChild(container);
+                        frame = undefined;
+                    });
+                }
+            }
+
+            poof();
+
+
+        };
+
+        function stopConfetti() {
+            clearTimeout(timer); // Clear the timeout for adding new confetti
+            cancelAnimationFrame(frame); // Cancel the animation frame request
+            frame = null; // Set frame to null to stop the animation loop
+
+            // Remove each confetto element from the container
+            var elements = document.querySelectorAll('.confetto-container');
+            elements.forEach(function(element) {
+                element.remove(); // Remove each element from the DOM
+            });
+
+        }
+
+
+        document.getElementById("closeBtnWin").addEventListener("click", () => {
+            stopConfetti();
+        });
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>
